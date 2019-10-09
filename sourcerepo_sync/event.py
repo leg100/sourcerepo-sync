@@ -13,6 +13,14 @@ class Event:
 
 
     @property
+    def provider(self):
+        if 'zen' in self.data:
+            return 'github'
+
+        # TODO: support bitbucket
+
+
+    @property
     def owner(self):
         return self._full_name.split('/')[0]
 

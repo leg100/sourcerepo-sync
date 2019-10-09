@@ -1,14 +1,16 @@
+from sh import git
 import tempfile
-import sh
+
+from sourcerepo_sync.event import Event
+from sourcerepo_sync.sourcerepo import SourceRepo
 
 
 def sync(event, context):
     event = Event(event)
     sourcerepo = SourceRepo(event)
 
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        git = sh.git.bake(_cwd=tmp_dir)
-        git.clone('--mirror', event.clone_url, '.')
-        git.push('--mirror', sourcerepo.url)
+    #with tempfile.TemporaryDirectory() as tmpdir:
+    git.clone('--mirror', event.clone_url, _cwd='/tmp/foo')
+    git.push('--mirror', sourcerepo.url, _cwd='/tmp/foo')
 
     return
