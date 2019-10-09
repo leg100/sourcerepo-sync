@@ -31,35 +31,36 @@ def env_vars(monkeypatch):
 def metadata(mocker):
     mocker.patch('sourcerepo_sync.metadata.service_account',
             return_value='webhook@gserviceiamaccount.com')
-    mocker.patch('sourcerepo_sync.metadata.access_token',
-            return_value='LKFLJKJSAKFNKJNFSKJNFKNA')
+
+    mocker.patch('sourcerepo_sync.metadata._token',
+            return_value=('{"access_token":"ya29.c.KmCbB4IUkf40Kuz2u_nZOc",'
+            '"expires_in":3599,"token_type":"Bearer"}')
+            )
 
 
 @pytest.fixture
 def tmp_dir(mocker):
-    tmp = tempfile.TemporaryDirectory()
-    return tmp.name
-
-
-def test_sync(github_data, env_vars, metadata, mocker):
-    mocker.patch('main.git.clone', create=True)
-    mocker.patch('main.git.push', create=True)
-
     tmp_dir = mock.Mock()
     tmp_dir.__enter__ = mock.Mock(return_value='/tmp/foo')
     tmp_dir.__exit__ = mock.Mock(return_value=False)
     mocker.patch('tempfile.TemporaryDirectory', return_value=tmp_dir)
 
+
+@pytest.fixture
+def git(mocker):
+    mocker.patch('main.git', create=True)
+
+
+def test_sync(github_data, env_vars, metadata, mocker, git, tmp_dir):
     main.sync(github_data, None)
 
-    assert main.git.clone.assert_called()
-    assert main.git.clone.assert_called_with('--mirror',
+    main.git.clone.assert_called_once_with('--mirror',
             'https://github.com/leg100/test-repo.git', _cwd='/tmp/foo')
 
     sourcerepo = \
-        ('https://webhook%40gserviceiamaccount.com:LKFLJKJSAKFNKJNFSKJNFKNA@'
+        ('https://webhook%40gserviceiamaccount.com:ya29.c.KmCbB4IUkf40Kuz2u_nZOc@'
         'source.developers.google.com'
         '/p/my-repo-project'
         '/r/github_leg100_test-repo')
 
-    assert main.git.push.assert_called_with('--mirror', sourcerepo, _cwd=tmp_dir)
+    main.git.push.assert_called_with('--mirror', sourcerepo, _cwd='/tmp/foo')

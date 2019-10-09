@@ -9,8 +9,8 @@ def sync(event, context):
     event = Event(event)
     sourcerepo = SourceRepo(event)
 
-    #with tempfile.TemporaryDirectory() as tmpdir:
-    git.clone('--mirror', event.clone_url, _cwd='/tmp/foo')
-    git.push('--mirror', sourcerepo.url, _cwd='/tmp/foo')
+    with tempfile.TemporaryDirectory() as tmpdir:
+        git.clone('--mirror', event.clone_url, _cwd=tmpdir)
+        git.push('--mirror', sourcerepo.url, _cwd=tmpdir)
 
     return

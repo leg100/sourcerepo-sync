@@ -1,3 +1,4 @@
+import json
 import requests
 
 
@@ -6,7 +7,11 @@ def service_account():
 
 
 def access_token():
-    return _token()['access_token']
+    return _token_dict()['access_token']
+
+
+def _token_dict():
+    return json.loads(_token())
 
 
 def _token():
