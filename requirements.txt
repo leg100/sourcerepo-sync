@@ -1,0 +1,5 @@
+google-cloud-kms
+google-cloud-storage
+google-api-python-client
+google-auth
+sh
